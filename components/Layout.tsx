@@ -22,14 +22,14 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   return (
     <div className="min-h-screen flex flex-col font-sans">
-      {/* Sticky Navbar */}
-      <nav className="sticky top-0 z-40 bg-white/90 dark:bg-black/90 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 transition-colors duration-300">
+      {/* Sticky Navbar with Glassmorphism */}
+      <nav className="sticky top-0 z-40 glass shadow-premium border-b border-slate-100 dark:border-slate-800 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-20">
             <div className="flex items-center">
               <Link to="/" className="flex-shrink-0 flex items-center group">
-                <span className="text-2xl font-serif font-bold tracking-tighter text-black dark:text-white group-hover:opacity-70 transition-opacity">
-                  TRI BUI<span className="text-slate-400 dark:text-slate-600">.</span>
+                <span className="text-2xl font-serif font-bold tracking-tighter text-black dark:text-white group-hover:scale-105 transition-transform duration-300">
+                  TRI BUI<span className="text-slate-400 dark:text-slate-600 animate-pulse">.</span>
                 </span>
               </Link>
             </div>
@@ -55,7 +55,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
               <button
                 onClick={() => setIsSearchOpen(true)}
-                className="p-2 text-slate-500 hover:text-black dark:hover:text-white transition-colors"
+                className="p-2 text-slate-500 hover:text-black dark:hover:text-white transition-all duration-300 hover:scale-110 hover:rotate-12"
                 aria-label="Search"
               >
                 <Search size={20} strokeWidth={1.5} />
@@ -63,7 +63,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
               <button
                 onClick={toggleTheme}
-                className="p-2 text-slate-500 hover:text-black dark:hover:text-white transition-colors"
+                className="p-2 text-slate-500 hover:text-black dark:hover:text-white transition-all duration-300 hover:scale-110 hover:rotate-180"
                 aria-label="Toggle Dark Mode"
               >
                 {theme === 'light' ? <Moon size={20} strokeWidth={1.5} /> : <Sun size={20} strokeWidth={1.5} />}
@@ -90,24 +90,25 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden bg-white dark:bg-black border-b border-slate-100 dark:border-slate-800 absolute w-full h-screen z-50">
+          <div className="md:hidden bg-white dark:bg-black border-b border-slate-100 dark:border-slate-800 absolute w-full h-screen z-50 animate-slide-up">
             <div className="px-4 pt-4 pb-3 space-y-6 flex flex-col items-center justify-center h-3/4">
-              {navLinks.map((link) => (
+              {navLinks.map((link, index) => (
                 <Link
                   key={link.path}
                   to={link.path}
                   onClick={() => setIsMenuOpen(false)}
-                  className={`block px-3 py-2 text-3xl font-serif font-bold ${
+                  className={`block px-3 py-2 text-3xl font-serif font-bold transition-all duration-300 hover:scale-110 ${
                     isActive(link.path)
                       ? 'text-black dark:text-white'
-                      : 'text-slate-400 dark:text-slate-600'
+                      : 'text-slate-400 dark:text-slate-600 hover:text-black dark:hover:text-white'
                   }`}
+                  style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   {link.name}
                 </Link>
               ))}
               <div className="pt-8 flex space-x-6">
-                <button onClick={toggleTheme} className="text-black dark:text-white">
+                <button onClick={toggleTheme} className="text-black dark:text-white hover:scale-110 hover:rotate-180 transition-all duration-300">
                     {theme === 'light' ? <Moon size={24} /> : <Sun size={24} />}
                 </button>
               </div>
@@ -118,25 +119,25 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
       {/* Search Overlay */}
       {isSearchOpen && (
-        <div className="fixed inset-0 z-[100] bg-white/95 dark:bg-black/95 backdrop-blur-xl flex items-center justify-center animate-fade-in">
+        <div className="fixed inset-0 z-[100] glass flex items-center justify-center animate-fade-in">
             <button 
                 onClick={() => setIsSearchOpen(false)}
-                className="absolute top-8 right-8 p-2 text-slate-500 hover:text-black dark:hover:text-white"
+                className="absolute top-8 right-8 p-2 text-slate-500 hover:text-black dark:hover:text-white transition-all duration-300 hover:scale-110 hover:rotate-90"
             >
                 <X size={32} strokeWidth={1} />
             </button>
-            <div className="w-full max-w-2xl px-4">
+            <div className="w-full max-w-2xl px-4 animate-scale-in">
                 <input 
                     type="text" 
                     placeholder="Search articles, strategies..." 
-                    className="w-full bg-transparent border-b-2 border-slate-200 dark:border-slate-800 text-3xl md:text-5xl font-serif font-bold py-4 text-black dark:text-white placeholder-slate-300 dark:placeholder-slate-700 focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+                    className="w-full bg-transparent border-b-2 border-slate-200 dark:border-slate-800 text-3xl md:text-5xl font-serif font-bold py-4 text-black dark:text-white placeholder-slate-300 dark:placeholder-slate-700 focus:outline-none focus:border-black dark:focus:border-white transition-all duration-300"
                     autoFocus
                 />
-                <div className="mt-8 flex flex-wrap gap-4">
+                <div className="mt-8 flex flex-wrap gap-4 animate-slide-up">
                     <span className="text-sm text-slate-400 uppercase tracking-widest">Trending:</span>
-                    <button className="text-sm font-medium hover:underline">Adidas Case Study</button>
-                    <button className="text-sm font-medium hover:underline">Viral Psychology</button>
-                    <button className="text-sm font-medium hover:underline">Pricing Models</button>
+                    <button className="text-sm font-medium hover:underline transition-all duration-200 hover:scale-110 hover:text-black dark:hover:text-white">Adidas Case Study</button>
+                    <button className="text-sm font-medium hover:underline transition-all duration-200 hover:scale-110 hover:text-black dark:hover:text-white">Viral Psychology</button>
+                    <button className="text-sm font-medium hover:underline transition-all duration-200 hover:scale-110 hover:text-black dark:hover:text-white">Pricing Models</button>
                 </div>
             </div>
         </div>
