@@ -10,7 +10,7 @@ const CaseGuide: React.FC = () => {
       id: 'understand',
       title: '1. Understand the Problem',
       icon: Target,
-      description: 'Define what you're actually solving',
+      description: "Define what you're actually solving",
       questions: [
         'What is the business problem vs. the marketing problem?',
         'What are the constraints (budget, timeline, resources)?',
@@ -52,7 +52,7 @@ const CaseGuide: React.FC = () => {
       id: 'strategy',
       title: '4. Develop Strategy',
       icon: Users,
-      description: 'How you'll win',
+      description: "How you'll win",
       questions: [
         'What is the core positioning/message?',
         'What channels will we use and why?',
@@ -111,7 +111,7 @@ const CaseGuide: React.FC = () => {
     },
     {
       mistake: 'Measuring activity instead of outcomes',
-      fix: 'If it doesn't connect to revenue or retention, it's vanity.'
+      fix: "If it doesn't connect to revenue or retention, it's vanity."
     }
   ];
 
