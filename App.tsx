@@ -15,8 +15,6 @@ import Register from './pages/Register';
 import AdminDashboard from './pages/AdminDashboard';
 import CaseGuide from './pages/CaseGuide';
 import MarketingRoadmap from './pages/MarketingRoadmap';
-import CaseGuide from './pages/CaseGuide';
-import MarketingRoadmap from './pages/MarketingRoadmap';
 
 // Scroll to top helper
 const ScrollToTop = () => {
