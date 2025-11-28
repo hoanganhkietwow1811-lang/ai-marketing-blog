@@ -207,6 +207,272 @@ export const BLOG_POSTS: BlogPost[] = [
       ],
       takeaways: "Data doesn't make decisions. You do. Data just reduces the risk of being wrong."
     }
+  },
+  {
+    id: 'tiktok-strategy',
+    title: 'TikTok Marketing in SEA: Beyond Dance Trends',
+    subtitle: 'How brands are winning on TikTok without looking desperate.',
+    category: Category.STRATEGY,
+    tags: ['TikTok', 'Social Media', 'SEA'],
+    image: 'https://picsum.photos/800/400?random=8',
+    date: 'Mar 05, 2024',
+    readTime: '7 min read',
+    content: {
+      intro: "TikTok isn't just for Gen Z anymore. Brands that master the platform's unique language are seeing massive returns. But most get it wrong.",
+      keyPoints: [
+        'Native content beats polished ads 10:1',
+        'Sound strategy > visual strategy on TikTok',
+        'Micro-trends move faster than your approval process'
+      ],
+      sections: [
+        {
+          heading: 'The TikTok Paradox',
+          body: "The more 'professional' your content looks, the worse it performs. TikTok rewards authenticity, speed, and participation in cultural moments."
+        }
+      ],
+      takeaways: "Stop treating TikTok like Instagram. It's a different game with different rules."
+    }
+  },
+  {
+    id: 'pricing-psychology',
+    title: 'The Psychology of Pricing: Why $99 Still Works',
+    subtitle: 'Behavioral economics principles every marketer should know.',
+    category: Category.CONSUMER,
+    tags: ['Pricing', 'Psychology', 'Conversion'],
+    image: 'https://picsum.photos/800/400?random=9',
+    date: 'Mar 12, 2024',
+    readTime: '6 min read',
+    content: {
+      intro: "Pricing is not just math. It's psychology, positioning, and perception management all rolled into one decision.",
+      keyPoints: [
+        'Charm pricing ($99 vs $100) increases conversion by 24%',
+        'Anchoring: Show expensive option first',
+        'Decoy pricing creates perceived value'
+      ],
+      sections: [
+        {
+          heading: 'The Power of Context',
+          body: "A $50 wine feels cheap at a high-end restaurant but expensive at a grocery store. Context shapes perception more than actual price."
+        }
+      ],
+      takeaways: "Price is a story you tell. Make sure it's the right one."
+    }
+  },
+  {
+    id: 'content-distribution',
+    title: 'Content Distribution > Content Creation',
+    subtitle: 'Why your best content is probably invisible.',
+    category: Category.GROWTH,
+    tags: ['Content', 'Distribution', 'SEO'],
+    image: 'https://picsum.photos/800/400?random=10',
+    date: 'Mar 18, 2024',
+    readTime: '5 min read',
+    content: {
+      intro: "You spent 40 hours creating the perfect guide. It got 47 views. The problem isn't your content—it's your distribution.",
+      keyPoints: [
+        'Spend 20% creating, 80% distributing',
+        'Repurpose content across 10+ channels',
+        'Distribution compounds; creation doesn't'
+      ],
+      sections: [
+        {
+          heading: 'The One-to-Many Strategy',
+          body: "Take one pillar piece and break it into: 10 tweets, 5 LinkedIn posts, 3 Instagram carousels, 1 podcast episode, and 15 newsletter snippets."
+        }
+      ],
+      takeaways: "Great content with poor distribution loses to mediocre content with great distribution. Every time."
+    }
+  },
+  {
+    id: 'grab-case-study',
+    title: 'Grab: The Super App Strategy That Changed SEA',
+    subtitle: 'How Grab became more than just a ride-hailing app.',
+    category: Category.CASE_STUDY,
+    tags: ['Platform', 'SEA', 'Growth'],
+    image: 'https://picsum.photos/800/400?random=11',
+    date: 'Mar 25, 2024',
+    readTime: '8 min read',
+    isFeatured: false,
+    caseStudyMeta: {
+      brand: 'Grab',
+      industry: 'Tech / Mobility',
+      problem: 'How to compete with Uber while being profitable in a price-sensitive market.',
+      approach: 'Build a super app ecosystem instead of just ride-hailing.',
+      keyInsight: 'In SEA, customers want everything in one app. Convenience > specialization.'
+    },
+    content: {
+      intro: "Grab didn't just beat Uber. They redefined what a mobility company could be by becoming the operating system for Southeast Asian daily life.",
+      keyPoints: [
+        'Expanded from rides to food, payments, and financial services',
+        'Localized for each market (GrabPay, GrabFood, etc.)',
+        'Built network effects across services'
+      ],
+      sections: [
+        {
+          heading: 'The Super App Thesis',
+          body: "While Western markets prefer specialized apps, SEA users want one app for everything. Grab recognized this cultural difference early."
+        },
+        {
+          heading: 'The Cash-to-Digital Bridge',
+          body: "GrabPay became a Trojan horse for financial inclusion, bringing millions of unbanked users into the digital economy."
+        }
+      ],
+      takeaways: "Platform thinking beats product thinking in emerging markets. Build ecosystems, not features."
+    }
+  },
+  {
+    id: 'email-marketing-2024',
+    title: 'Email Marketing in 2024: Still Not Dead',
+    subtitle: 'Why email outperforms social media for ROI.',
+    category: Category.GROWTH,
+    tags: ['Email', 'Retention', 'ROI'],
+    image: 'https://picsum.photos/800/400?random=12',
+    date: 'Apr 02, 2024',
+    readTime: '6 min read',
+    content: {
+      intro: "Everyone chases social media. Smart marketers quietly build email lists. Email marketing returns $42 for every $1 spent.",
+      keyPoints: [
+        'You own your email list; you rent social media audiences',
+        'Email converts 3x better than social media',
+        'Segmentation is the difference between spam and relevance'
+      ],
+      sections: [
+        {
+          heading: 'The Ownership Advantage',
+          body: "Instagram could ban you tomorrow. TikTok's algorithm could change. Your email list? That's yours forever."
+        }
+      ],
+      takeaways: "Treat email like a product, not a broadcast channel. Respect the inbox."
+    }
+  },
+  {
+    id: 'community-marketing',
+    title: 'Community-Led Growth: The New Playbook',
+    subtitle: 'Why communities beat ads in the long run.',
+    category: Category.STRATEGY,
+    tags: ['Community', 'Growth', 'Retention'],
+    image: 'https://picsum.photos/800/400?random=13',
+    date: 'Apr 10, 2024',
+    readTime: '7 min read',
+    content: {
+      intro: "Communities are the moat ads can't build. They create belonging, not just transactions.",
+      keyPoints: [
+        'Community members have 3x higher LTV',
+        'Word-of-mouth from communities converts at 50%+',
+        'Communities provide free market research'
+      ],
+      sections: [
+        {
+          heading: 'From Audience to Community',
+          body: "An audience consumes your content. A community creates with you. The shift requires letting go of control."
+        }
+      ],
+      takeaways: "Build a community around your mission, not your product. The product is the excuse to gather."
+    }
+  },
+  {
+    id: 'influencer-marketing-roi',
+    title: 'Influencer Marketing: Measuring What Actually Matters',
+    subtitle: 'Beyond vanity metrics to real business impact.',
+    category: Category.GROWTH,
+    tags: ['Influencer', 'ROI', 'Measurement'],
+    image: 'https://picsum.photos/800/400?random=14',
+    date: 'Apr 18, 2024',
+    readTime: '5 min read',
+    content: {
+      intro: "Most brands measure influencer success by likes and reach. Meanwhile, their CFO is asking about actual revenue.",
+      keyPoints: [
+        'Engagement rate > follower count',
+        'Use unique promo codes to track conversions',
+        'Micro-influencers (10K-100K) often deliver better ROI'
+      ],
+      sections: [
+        {
+          heading: 'The Attribution Problem',
+          body: "Influencer marketing works best as brand building, not direct response. Set expectations accordingly with stakeholders."
+        }
+      ],
+      takeaways: "Treat influencer partnerships like media buys. Demand measurement, not just 'exposure'."
+    }
+  },
+  {
+    id: 'brand-storytelling',
+    title: 'Brand Storytelling: Framework Not Fluff',
+    subtitle: 'The anatomy of stories that sell.',
+    category: Category.STRATEGY,
+    tags: ['Storytelling', 'Branding', 'Content'],
+    image: 'https://picsum.photos/800/400?random=15',
+    date: 'Apr 25, 2024',
+    readTime: '8 min read',
+    content: {
+      intro: "Every brand says they tell stories. Few actually do. Here's the difference between a story and a sales pitch.",
+      keyPoints: [
+        'Stories need conflict, not just benefits',
+        'Your customer is the hero; you are the guide',
+        'Emotion drives decision; logic justifies it'
+      ],
+      sections: [
+        {
+          heading: 'The Hero\'s Journey for Brands',
+          body: "Customer has problem → Meets your brand → Transformation occurs. Simple structure, infinite variations."
+        },
+        {
+          heading: 'Show Don\'t Tell',
+          body: "Don't say 'We're innovative.' Show a story of how you solved an impossible problem."
+        }
+      ],
+      takeaways: "Facts tell, stories sell. But only if you're telling the right story."
+    }
+  },
+  {
+    id: 'seo-content-strategy',
+    title: 'SEO in 2024: Create for Humans, Optimize for Bots',
+    subtitle: 'Modern SEO is about user intent, not keywords.',
+    category: Category.GROWTH,
+    tags: ['SEO', 'Content', 'Search'],
+    image: 'https://picsum.photos/800/400?random=16',
+    date: 'May 02, 2024',
+    readTime: '7 min read',
+    content: {
+      intro: "Google's algorithm is now smart enough to understand context and intent. Keyword stuffing is dead. Understanding your audience is everything.",
+      keyPoints: [
+        'Topic clusters > individual keywords',
+        'Search intent determines content format',
+        'Page experience is a ranking factor'
+      ],
+      sections: [
+        {
+          heading: 'The Intent Mapping Framework',
+          body: "Every search query has intent: informational, navigational, commercial, or transactional. Match your content to intent."
+        }
+      ],
+      takeaways: "Win SEO by being the best answer, not the best optimizer."
+    }
+  },
+  {
+    id: 'marketing-attribution',
+    title: 'Marketing Attribution: The Unsolvable Problem',
+    subtitle: 'Why attribution models are broken and what to do instead.',
+    category: Category.STRATEGY,
+    tags: ['Attribution', 'Analytics', 'Measurement'],
+    image: 'https://picsum.photos/800/400?random=17',
+    date: 'May 10, 2024',
+    readTime: '6 min read',
+    content: {
+      intro: "Every marketing team wants perfect attribution. No marketing team has it. Here's how to make peace with ambiguity.",
+      keyPoints: [
+        'Multi-touch attribution is directionally correct, not precisely accurate',
+        'Incrementality testing > attribution models',
+        'Focus on contribution, not attribution'
+      ],
+      sections: [
+        {
+          heading: 'The Dark Funnel Problem',
+          body: "Most B2B buying happens in Slack channels, private LinkedIn DMs, and podcast conversations. Your attribution model sees none of it."
+        }
+      ],
+      takeaways: "Accept that marketing is part science, part art. Use data to reduce uncertainty, not eliminate it."
+    }
   }
 ];
 

@@ -17,7 +17,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     { name: 'Home', path: '/' },
     { name: 'Case Studies', path: '/case-studies' },
     { name: 'Insights', path: '/blog' },
-    { name: 'Frameworks', path: '/resources' },
+    { name: 'Case Guide', path: '/case-guide' },
+    { name: 'Roadmap', path: '/roadmap' },
     { name: 'About', path: '/about' },
   ];
 

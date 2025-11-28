@@ -13,6 +13,10 @@ import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import AdminDashboard from './pages/AdminDashboard';
+import CaseGuide from './pages/CaseGuide';
+import MarketingRoadmap from './pages/MarketingRoadmap';
+import CaseGuide from './pages/CaseGuide';
+import MarketingRoadmap from './pages/MarketingRoadmap';
 
 // Scroll to top helper
 const ScrollToTop = () => {
@@ -43,6 +47,8 @@ const App: React.FC = () => {
             <Route path="/" element={<Layout><Home /></Layout>} />
             <Route path="/blog" element={<Layout><Blog /></Layout>} />
             <Route path="/case-studies" element={<Layout><CaseStudies /></Layout>} />
+            <Route path="/case-guide" element={<Layout><CaseGuide /></Layout>} />
+            <Route path="/roadmap" element={<Layout><MarketingRoadmap /></Layout>} />
             <Route path="/post/:id" element={<Layout><PostDetail /></Layout>} />
             <Route path="/about" element={<Layout><About /></Layout>} />
             <Route path="/resources" element={<Layout><Resources /></Layout>} />
