@@ -272,7 +272,7 @@ export const BLOG_POSTS: BlogPost[] = [
       keyPoints: [
         'Spend 20% creating, 80% distributing',
         'Repurpose content across 10+ channels',
-        'Distribution compounds; creation doesn't'
+        "Distribution compounds; creation doesn't"
       ],
       sections: [
         {
@@ -413,11 +413,11 @@ export const BLOG_POSTS: BlogPost[] = [
       ],
       sections: [
         {
-          heading: 'The Hero\'s Journey for Brands',
+          heading: "The Hero's Journey for Brands",
           body: "Customer has problem → Meets your brand → Transformation occurs. Simple structure, infinite variations."
         },
         {
-          heading: 'Show Don\'t Tell',
+          heading: "Show Don't Tell",
           body: "Don't say 'We're innovative.' Show a story of how you solved an impossible problem."
         }
       ],
