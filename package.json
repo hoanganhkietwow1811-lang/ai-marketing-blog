@@ -1,23 +1,35 @@
 {
-  "name": "tri-bui---marketing-strategy-&-insights",
+  "name": "marketing-blog",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^2.11.1",
+    "@google/generative-ai": "^0.24.1",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "lucide-react": "0.344.0",
+    "next-auth": "^4.24.13",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "6.22.3",
-    "lucide-react": "0.344.0",
-    "@google/generative-ai": "^0.21.0"
+    "react-router-dom": "6.22.3"
   },
   "devDependencies": {
+    "@prisma/client": "5.10.0",
     "@types/node": "^22.14.0",
+    "@types/react": "^19.2.8",
+    "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.0.0",
+    "prisma": "5.10.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
   }

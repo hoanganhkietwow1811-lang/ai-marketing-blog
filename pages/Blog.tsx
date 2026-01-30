@@ -1,9 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { BLOG_POSTS } from '../data/mockData';
-import PostCard from '../components/PostCard';
+import PostCard from '../components/PostCard'; // Giữ nguyên component hiển thị
 import { Category, BlogPost } from '../types';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, Loader2 } from 'lucide-react';
 
 const Blog: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -11,18 +10,57 @@ const Blog: React.FC = () => {
   
   const [activeCategory, setActiveCategory] = useState<string>(categoryParam || 'All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [posts, setPosts] = useState<BlogPost[]>(BLOG_POSTS);
+  
+  // State bài viết & trạng thái tải
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Load posts from localStorage on mount
+  // --- THAY ĐỔI QUAN TRỌNG: LẤY DỮ LIỆU TỪ SERVER ---
   useEffect(() => {
-    const storedPosts = localStorage.getItem('blogPosts');
-    if (storedPosts) {
-      setPosts(JSON.parse(storedPosts));
-    }
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/posts');
+        const data = await response.json();
+
+        // Mapping: Biến dữ liệu đơn giản từ DB thành dữ liệu đầy đủ cho Frontend
+        const mappedPosts: BlogPost[] = data.map((dbPost: any) => ({
+          id: dbPost.id.toString(),
+          title: dbPost.title,
+          // Vì DB chưa có cột subtitle, ta cắt ngắn nội dung làm subtitle
+          subtitle: dbPost.content.substring(0, 100) + "...", 
+          // DB chưa có category, tạm thời random hoặc để mặc định
+          category: Category.STRATEGY, 
+          // DB chưa có ảnh, dùng ảnh placeholder đẹp
+          image: "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&q=80",
+          date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+          readTime: "5 min read",
+          tags: ["Marketing", "Database"], // Tag giả lập
+          isFeatured: false,
+          author: dbPost.author, // Lấy thông tin tác giả từ DB
+          content: {
+            intro: dbPost.content, // Đưa nội dung vào intro
+            keyPoints: [],
+            sections: [],
+            takeaways: ""
+          }
+        }));
+
+        setPosts(mappedPosts);
+      } catch (error) {
+        console.error("Lỗi kết nối Server:", error);
+        // Nếu lỗi, có thể để mảng rỗng hoặc fallback về mockData cũ tùy bạn
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPosts();
   }, []);
+  // ---------------------------------------------------
 
   const categories = ['All', ...Object.values(Category)];
 
+  // Logic lọc bài viết (Giữ nguyên của bạn - rất tốt)
   const filteredPosts = useMemo(() => {
     return posts.filter(post => {
       const matchesCategory = activeCategory === 'All' || post.category === activeCategory;
@@ -31,7 +69,7 @@ const Blog: React.FC = () => {
                             post.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
       return matchesCategory && matchesSearch;
     });
-  }, [activeCategory, searchQuery]);
+  }, [activeCategory, searchQuery, posts]);
 
   const handleCategoryChange = (cat: string) => {
     setActiveCategory(cat);
@@ -66,7 +104,7 @@ const Blog: React.FC = () => {
                 onClick={() => handleCategoryChange(cat)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                   activeCategory === cat
-                    ? 'bg-brand-600 text-white shadow-md'
+                    ? 'bg-black text-white shadow-md dark:bg-white dark:text-black' // Sửa lại màu một chút cho hợp style brand
                     : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
                 }`}
               >
@@ -85,13 +123,17 @@ const Blog: React.FC = () => {
               placeholder="Search topics..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="block w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg leading-5 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 transition duration-150 ease-in-out sm:text-sm"
+              className="block w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg leading-5 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition duration-150 ease-in-out sm:text-sm"
             />
           </div>
         </div>
 
         {/* Results */}
-        {filteredPosts.length > 0 ? (
+        {isLoading ? (
+          <div className="flex justify-center items-center py-20">
+            <Loader2 className="animate-spin text-slate-400" size={48} />
+          </div>
+        ) : filteredPosts.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredPosts.map(post => (
               <PostCard key={post.id} post={post} />

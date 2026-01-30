@@ -1,441 +1,302 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, Edit2, Trash2, Save, X, Image as ImageIcon, LayoutDashboard } from 'lucide-react';
+import { PlusCircle, Edit2, Trash2, Save, X, Image as ImageIcon, LayoutDashboard, Loader2, Sparkles } from 'lucide-react';
 import { BlogPost, Category } from '../types';
-import { BLOG_POSTS } from '../data/mockData';
 
 const AdminDashboard: React.FC = () => {
-  const { isAdmin, user } = useAuth();
   const navigate = useNavigate();
   const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
+  const [isLoading, setIsLoading] = useState(false); // Loading khi lưu
+  const [isEditing, setIsEditing] = useState(false); // Trạng thái mở form
+  
+  // Trạng thái AI
+  const [brandInput, setBrandInput] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  // Lưu ID bài đang sửa (nếu null nghĩa là đang Tạo Mới)
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  // Form dữ liệu (đơn giản hóa Content thành string để dễ sửa)
   const [formData, setFormData] = useState({
     title: '',
     subtitle: '',
     category: Category.STRATEGY,
-    tags: '',
     image: '',
-    content: {
-      intro: '',
-      keyPoints: [''],
-      sections: [{ heading: '', body: '' }],
-      takeaways: ''
-    }
+    content: '' // Lưu toàn bộ nội dung dưới dạng Markdown string
   });
 
+  // --- 1. LẤY DANH SÁCH BÀI VIẾT ---
+  const fetchPosts = async () => {
+    try {
+      const response = await fetch('http://localhost:4000/api/posts');
+      const data = await response.json();
+      
+      // Map dữ liệu từ Server về Frontend
+      const mappedPosts: BlogPost[] = data.map((post: any) => ({
+        id: post.id.toString(),
+        title: post.title,
+        subtitle: post.content ? post.content.substring(0, 100) + "..." : "",
+        category: post.category || Category.STRATEGY,
+        image: post.image || "https://picsum.photos/800/600",
+        date: new Date(post.createdAt).toLocaleDateString(),
+        readTime: "5 min read",
+        content: post.content // Giữ nguyên nội dung gốc
+      }));
+
+      setPosts(mappedPosts);
+    } catch (error) {
+      console.error("Lỗi tải bài viết:", error);
+    }
+  };
+
   useEffect(() => {
-    if (!isAdmin) {
-      navigate('/login');
+    // Kiểm tra quyền Admin (Giữ nguyên logic cũ của bạn)
+    const token = localStorage.getItem('token');
+    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+    
+    if (!token || (storedUser.role && storedUser.role !== 'ADMIN')) {
+      alert("Bạn không có quyền truy cập Admin!");
+      navigate('/');
       return;
     }
+    fetchPosts();
+  }, [navigate]);
 
-    // Load posts from localStorage or use default
-    const storedPosts = localStorage.getItem('blogPosts');
-    if (storedPosts) {
-      setPosts(JSON.parse(storedPosts));
-    } else {
-      setPosts(BLOG_POSTS);
-      localStorage.setItem('blogPosts', JSON.stringify(BLOG_POSTS));
+  // --- 2. TÍNH NĂNG AI AGENT ---
+  const handleAIGenerate = async () => {
+    if (!brandInput.trim()) return alert("Vui lòng nhập tên thương hiệu!");
+    setIsGenerating(true);
+    try {
+      const res = await fetch('http://localhost:4000/api/generate-ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ brandName: brandInput })
+      });
+      const data = await res.json();
+      
+      // Điền dữ liệu AI vào Form
+      setFormData(prev => ({
+        ...prev,
+        title: data.title,
+        content: data.content, // AI trả về Markdown
+        image: data.image,
+        category: Category.CASE_STUDY
+      }));
+      alert("✅ AI đã viết xong!");
+    } catch (error) {
+      alert("Lỗi AI: " + error);
+    } finally {
+      setIsGenerating(false);
     }
-  }, [isAdmin, navigate]);
+  };
 
+  // --- 3. XỬ LÝ MỞ FORM (TẠO MỚI / SỬA) ---
+  
+  // Khi bấm "New Post"
   const handleCreateNew = () => {
-    setIsEditing(true);
-    setEditingPost(null);
+    setEditingId(null); // Xóa ID -> Chế độ Tạo Mới
+    setBrandInput('');
     setFormData({
       title: '',
       subtitle: '',
       category: Category.STRATEGY,
-      tags: '',
-      image: '/images/placeholder.jpg',
-      content: {
-        intro: '',
-        keyPoints: [''],
-        sections: [{ heading: '', body: '' }],
-        takeaways: ''
-      }
+      image: 'https://picsum.photos/seed/new/800/600',
+      content: ''
     });
+    setIsEditing(true);
   };
 
+  // Khi bấm nút "Sửa" (Edit)
   const handleEdit = (post: BlogPost) => {
-    setIsEditing(true);
-    setEditingPost(post);
+    setEditingId(post.id); // Lưu ID -> Chế độ Sửa
     setFormData({
       title: post.title,
       subtitle: post.subtitle,
       category: post.category,
-      tags: post.tags.join(', '),
       image: post.image,
-      content: {
-        intro: post.content.intro,
-        keyPoints: post.content.keyPoints || [''],
-        sections: post.content.sections || [{ heading: '', body: '' }],
-        takeaways: post.content.takeaways
-      }
+      // Nếu content là object (từ mock data cũ) thì lấy intro, nếu string (từ DB) thì lấy trực tiếp
+      content: typeof post.content === 'string' ? post.content : (post.content as any).intro 
     });
+    setIsEditing(true);
   };
 
-  const handleDelete = (postId: string) => {
-    if (confirm('Are you sure you want to delete this post?')) {
-      const updatedPosts = posts.filter(p => p.id !== postId);
-      setPosts(updatedPosts);
-      localStorage.setItem('blogPosts', JSON.stringify(updatedPosts));
+  // --- 4. LƯU BÀI VIẾT (QUAN TRỌNG NHẤT: FIX LỖI DUPLICATE) ---
+  const handleSave = async () => {
+    if (!formData.title || !formData.content) return alert("Thiếu tiêu đề hoặc nội dung!");
+    setIsLoading(true);
+
+    try {
+      // 👇 LOGIC FIX LỖI: Kiểm tra xem đang Tạo hay Sửa?
+      const isUpdate = !!editingId; 
+      const method = isUpdate ? 'PUT' : 'POST';
+      const url = isUpdate 
+        ? `http://localhost:4000/api/posts/${editingId}` // API Sửa
+        : 'http://localhost:4000/api/posts';             // API Tạo
+
+      const response = await fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: formData.title,
+          content: formData.content,
+          image: formData.image,       
+          category: formData.category  
+        }),
+      });
+
+      if (response.ok) {
+        alert(isUpdate ? 'Cập nhật thành công!' : 'Tạo mới thành công!');
+        setIsEditing(false); // Đóng form
+        fetchPosts();        // Load lại danh sách ngay lập tức
+      } else {
+        alert('Lỗi khi lưu bài viết');
+      }
+    } catch (error) {
+      alert('Lỗi kết nối Server');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleSave = () => {
-    const newPost: BlogPost = {
-      id: editingPost?.id || `post-${Date.now()}`,
-      title: formData.title,
-      subtitle: formData.subtitle,
-      category: formData.category,
-      tags: formData.tags.split(',').map(t => t.trim()),
-      image: formData.image,
-      date: editingPost?.date || new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-      readTime: `${Math.ceil(formData.content.intro.split(' ').length / 200)} min read`,
-      content: formData.content,
-      isFeatured: editingPost?.isFeatured || false,
-      caseStudyMeta: editingPost?.caseStudyMeta
-    };
-
-    let updatedPosts;
-    if (editingPost) {
-      updatedPosts = posts.map(p => p.id === editingPost.id ? newPost : p);
-    } else {
-      updatedPosts = [newPost, ...posts];
+  // --- 5. XÓA BÀI ---
+  const handleDelete = async (postId: string) => {
+    if (!confirm('Bạn có chắc muốn xóa bài này?')) return;
+    try {
+      await fetch(`http://localhost:4000/api/posts/${postId}`, { method: 'DELETE' });
+      // Cập nhật giao diện ngay lập tức (xóa bài khỏi list hiện tại)
+      setPosts(posts.filter(p => p.id !== postId));
+    } catch (error) {
+      alert("Lỗi xóa bài");
     }
-
-    setPosts(updatedPosts);
-    localStorage.setItem('blogPosts', JSON.stringify(updatedPosts));
-    setIsEditing(false);
-    setEditingPost(null);
   };
 
-  const addKeyPoint = () => {
-    setFormData({
-      ...formData,
-      content: {
-        ...formData.content,
-        keyPoints: [...formData.content.keyPoints, '']
-      }
-    });
-  };
-
-  const updateKeyPoint = (index: number, value: string) => {
-    const newKeyPoints = [...formData.content.keyPoints];
-    newKeyPoints[index] = value;
-    setFormData({
-      ...formData,
-      content: {
-        ...formData.content,
-        keyPoints: newKeyPoints
-      }
-    });
-  };
-
-  const addSection = () => {
-    setFormData({
-      ...formData,
-      content: {
-        ...formData.content,
-        sections: [...formData.content.sections, { heading: '', body: '' }]
-      }
-    });
-  };
-
-  const updateSection = (index: number, field: 'heading' | 'body', value: string) => {
-    const newSections = [...formData.content.sections];
-    newSections[index][field] = value;
-    setFormData({
-      ...formData,
-      content: {
-        ...formData.content,
-        sections: newSections
-      }
-    });
-  };
-
-  if (!isAdmin) {
-    return null;
-  }
-
+  // --- GIAO DIỆN ---
   return (
-    <div className="min-h-screen bg-white dark:bg-black py-12">
+    <div className="min-h-screen bg-slate-50 dark:bg-black py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
-        <div className="mb-8 pb-8 border-b border-slate-200 dark:border-slate-800">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center space-x-3 mb-2">
-                <LayoutDashboard className="text-black dark:text-white" size={32} />
-                <h1 className="text-4xl font-serif font-bold text-black dark:text-white">
-                  Admin Dashboard
-                </h1>
-              </div>
-              <p className="text-slate-600 dark:text-slate-400">
-                Welcome back, {user?.name}
-              </p>
-            </div>
-            {!isEditing && (
-              <button
-                onClick={handleCreateNew}
-                className="flex items-center px-6 py-3 bg-black dark:bg-white text-white dark:text-black font-bold uppercase tracking-widest rounded-xl hover:scale-105 transition-all duration-300 shadow-premium"
-              >
-                <PlusCircle size={20} className="mr-2" />
-                New Post
-              </button>
-            )}
+        <div className="mb-8 pb-8 border-b border-slate-200 dark:border-zinc-800 flex justify-between items-center">
+          <div>
+            <h1 className="text-4xl font-serif font-bold text-black dark:text-white flex items-center gap-3">
+               <LayoutDashboard /> Admin Dashboard
+            </h1>
+            <p className="text-slate-500 mt-2">Quản lý bài viết & AI Content Generator</p>
           </div>
+          {!isEditing && (
+            <button onClick={handleCreateNew} className="flex items-center px-6 py-3 bg-black dark:bg-white text-white dark:text-black font-bold uppercase rounded-xl hover:scale-105 transition-all shadow-lg">
+              <PlusCircle size={20} className="mr-2" /> New Post
+            </button>
+          )}
         </div>
 
-        {/* Editor Form */}
+        {/* EDITOR FORM */}
         {isEditing ? (
-          <div className="glass shadow-premium-lg rounded-2xl p-8 mb-8 animate-scale-in">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-serif font-bold text-black dark:text-white">
-                {editingPost ? 'Edit Post' : 'Create New Post'}
-              </h2>
-              <button
-                onClick={() => setIsEditing(false)}
-                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-              >
-                <X size={24} />
-              </button>
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl p-8 animate-fade-in border border-slate-200 dark:border-zinc-800">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold">{editingId ? 'Edit Post' : 'Create New Post'}</h2>
+              <button onClick={() => setIsEditing(false)} className="p-2 hover:bg-slate-100 rounded-full"><X size={24}/></button>
             </div>
 
+            {/* AI Generator Section (Chỉ hiện khi tạo mới hoặc field trống) */}
+            <div className="mb-8 p-6 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl text-white shadow-lg">
+                <div className="flex items-center gap-2 mb-2 font-bold"><Sparkles size={18}/> AI Auto-Generate</div>
+                <div className="flex gap-3">
+                    <input 
+                        value={brandInput} onChange={(e) => setBrandInput(e.target.value)}
+                        placeholder="Nhập tên thương hiệu (VD: Tesla, VinFast)..."
+                        className="flex-1 px-4 py-2 rounded-lg text-black outline-none"
+                    />
+                    <button onClick={handleAIGenerate} disabled={isGenerating} className="px-6 py-2 bg-black/20 hover:bg-black/40 rounded-lg font-bold backdrop-blur-sm transition">
+                        {isGenerating ? <Loader2 className="animate-spin"/> : 'Generate'}
+                    </button>
+                </div>
+            </div>
+
+            {/* Input Fields */}
             <div className="space-y-6">
-              {/* Title */}
               <div>
-                <label className="block text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
-                  Title *
-                </label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl glass border-2 border-slate-200 dark:border-slate-800 focus:border-black dark:focus:border-white outline-none transition-all text-black dark:text-white"
-                  placeholder="Enter post title"
+                <label className="block font-bold mb-2">Title</label>
+                <input 
+                    value={formData.title} 
+                    onChange={(e) => setFormData({...formData, title: e.target.value})}
+                    className="w-full p-3 border rounded-xl dark:bg-black dark:border-zinc-700 outline-none focus:ring-2 ring-black"
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-6">
+                 <div>
+                    <label className="block font-bold mb-2">Category</label>
+                    <select 
+                        value={formData.category}
+                        onChange={(e) => setFormData({...formData, category: e.target.value as Category})}
+                        className="w-full p-3 border rounded-xl dark:bg-black dark:border-zinc-700 outline-none"
+                    >
+                        <option value={Category.STRATEGY}>Strategy</option>
+                        <option value={Category.CASE_STUDY}>Case Study</option>
+                        <option value={Category.GROWTH}>Growth</option>
+                        <option value={Category.CONSUMER}>Consumer</option>
+                    </select>
+                 </div>
+                 <div>
+                    <label className="block font-bold mb-2">Image URL</label>
+                    <div className="relative">
+                        <ImageIcon className="absolute left-3 top-3 text-slate-400" size={20}/>
+                        <input 
+                            value={formData.image} 
+                            onChange={(e) => setFormData({...formData, image: e.target.value})}
+                            className="w-full pl-10 p-3 border rounded-xl dark:bg-black dark:border-zinc-700 outline-none"
+                        />
+                    </div>
+                 </div>
+              </div>
+
+              <div>
+                <label className="block font-bold mb-2">Content (Markdown)</label>
+                <textarea 
+                    rows={12}
+                    value={formData.content}
+                    onChange={(e) => setFormData({...formData, content: e.target.value})}
+                    className="w-full p-4 border rounded-xl dark:bg-black dark:border-zinc-700 outline-none font-mono text-sm leading-relaxed"
+                    placeholder="Nội dung bài viết..."
                 />
               </div>
 
-              {/* Subtitle */}
-              <div>
-                <label className="block text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
-                  Subtitle *
-                </label>
-                <input
-                  type="text"
-                  value={formData.subtitle}
-                  onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl glass border-2 border-slate-200 dark:border-slate-800 focus:border-black dark:focus:border-white outline-none transition-all text-black dark:text-white"
-                  placeholder="Enter post subtitle"
-                />
-              </div>
-
-              {/* Category & Tags */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
-                    Category *
-                  </label>
-                  <select
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value as Category })}
-                    className="w-full px-4 py-3 rounded-xl glass border-2 border-slate-200 dark:border-slate-800 focus:border-black dark:focus:border-white outline-none transition-all text-black dark:text-white"
-                  >
-                    <option value={Category.CASE_STUDY}>Case Study</option>
-                    <option value={Category.STRATEGY}>Strategy</option>
-                    <option value={Category.GROWTH}>Growth</option>
-                    <option value={Category.CONSUMER}>Consumer</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
-                    Tags (comma-separated)
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.tags}
-                    onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl glass border-2 border-slate-200 dark:border-slate-800 focus:border-black dark:focus:border-white outline-none transition-all text-black dark:text-white"
-                    placeholder="Branding, Marketing, Growth"
-                  />
-                </div>
-              </div>
-
-              {/* Image URL */}
-              <div>
-                <label className="block text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
-                  Image URL
-                </label>
-                <div className="relative">
-                  <ImageIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400" size={20} />
-                  <input
-                    type="text"
-                    value={formData.image}
-                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                    className="w-full pl-12 pr-4 py-3 rounded-xl glass border-2 border-slate-200 dark:border-slate-800 focus:border-black dark:focus:border-white outline-none transition-all text-black dark:text-white"
-                    placeholder="/images/your-image.jpg"
-                  />
-                </div>
-              </div>
-
-              {/* Content - Intro */}
-              <div>
-                <label className="block text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
-                  Introduction *
-                </label>
-                <textarea
-                  value={formData.content.intro}
-                  onChange={(e) => setFormData({ ...formData, content: { ...formData.content, intro: e.target.value } })}
-                  rows={4}
-                  className="w-full px-4 py-3 rounded-xl glass border-2 border-slate-200 dark:border-slate-800 focus:border-black dark:focus:border-white outline-none transition-all text-black dark:text-white resize-none"
-                  placeholder="Write the introduction..."
-                />
-              </div>
-
-              {/* Key Points */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-bold uppercase tracking-widest text-black dark:text-white">
-                    Key Points
-                  </label>
-                  <button
-                    onClick={addKeyPoint}
-                    className="text-sm font-bold text-black dark:text-white hover:underline"
-                  >
-                    + Add Point
-                  </button>
-                </div>
-                {formData.content.keyPoints.map((point, index) => (
-                  <input
-                    key={index}
-                    type="text"
-                    value={point}
-                    onChange={(e) => updateKeyPoint(index, e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl glass border-2 border-slate-200 dark:border-slate-800 focus:border-black dark:focus:border-white outline-none transition-all text-black dark:text-white mb-2"
-                    placeholder={`Key point ${index + 1}`}
-                  />
-                ))}
-              </div>
-
-              {/* Sections */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-bold uppercase tracking-widest text-black dark:text-white">
-                    Content Sections
-                  </label>
-                  <button
-                    onClick={addSection}
-                    className="text-sm font-bold text-black dark:text-white hover:underline"
-                  >
-                    + Add Section
-                  </button>
-                </div>
-                {formData.content.sections.map((section, index) => (
-                  <div key={index} className="glass p-4 rounded-xl mb-4">
-                    <input
-                      type="text"
-                      value={section.heading}
-                      onChange={(e) => updateSection(index, 'heading', e.target.value)}
-                      className="w-full px-4 py-2 rounded-lg glass border-2 border-slate-200 dark:border-slate-800 focus:border-black dark:focus:border-white outline-none transition-all text-black dark:text-white mb-2"
-                      placeholder="Section heading"
-                    />
-                    <textarea
-                      value={section.body}
-                      onChange={(e) => updateSection(index, 'body', e.target.value)}
-                      rows={3}
-                      className="w-full px-4 py-2 rounded-lg glass border-2 border-slate-200 dark:border-slate-800 focus:border-black dark:focus:border-white outline-none transition-all text-black dark:text-white resize-none"
-                      placeholder="Section content"
-                    />
-                  </div>
-                ))}
-              </div>
-
-              {/* Takeaways */}
-              <div>
-                <label className="block text-sm font-bold uppercase tracking-widest text-black dark:text-white mb-2">
-                  Key Takeaways
-                </label>
-                <textarea
-                  value={formData.content.takeaways}
-                  onChange={(e) => setFormData({ ...formData, content: { ...formData.content, takeaways: e.target.value } })}
-                  rows={3}
-                  className="w-full px-4 py-3 rounded-xl glass border-2 border-slate-200 dark:border-slate-800 focus:border-black dark:focus:border-white outline-none transition-all text-black dark:text-white resize-none"
-                  placeholder="Summary and key takeaways..."
-                />
-              </div>
-
-              {/* Save Button */}
-              <div className="flex space-x-4">
-                <button
-                  onClick={handleSave}
-                  className="flex-1 flex items-center justify-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-bold uppercase tracking-widest rounded-xl hover:scale-105 transition-all duration-300 shadow-premium"
-                >
-                  <Save size={20} className="mr-2" />
-                  Save Post
-                </button>
-                <button
-                  onClick={() => setIsEditing(false)}
-                  className="px-8 py-4 border-2 border-black dark:border-white text-black dark:text-white font-bold uppercase tracking-widest rounded-xl hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300"
-                >
-                  Cancel
-                </button>
+              <div className="flex gap-4 pt-4">
+                 <button onClick={handleSave} disabled={isLoading} className="flex-1 bg-black dark:bg-white text-white dark:text-black py-4 rounded-xl font-bold uppercase tracking-widest hover:scale-105 transition shadow-lg flex justify-center items-center gap-2">
+                    {isLoading ? <Loader2 className="animate-spin"/> : <Save size={20}/>}
+                    {editingId ? 'Update Post' : 'Save Post'}
+                 </button>
+                 <button onClick={() => setIsEditing(false)} className="px-8 border-2 border-slate-300 rounded-xl font-bold uppercase hover:bg-slate-100 transition">
+                    Cancel
+                 </button>
               </div>
             </div>
           </div>
         ) : (
-          /* Posts List */
-          <div className="space-y-4">
-            <h2 className="text-2xl font-serif font-bold text-black dark:text-white mb-4">
-              All Posts ({posts.length})
-            </h2>
+          /* POST LIST */
+          <div className="grid gap-4">
             {posts.map((post) => (
-              <div
-                key={post.id}
-                className="glass shadow-premium p-6 rounded-xl hover-lift flex items-center justify-between"
-              >
-                <div className="flex items-center space-x-4 flex-1">
-                  <img
-                    src={post.image}
-                    alt={post.title}
-                    className="w-20 h-20 object-cover rounded-lg"
-                  />
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold text-black dark:text-white mb-1">
-                      {post.title}
-                    </h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
-                      {post.subtitle}
-                    </p>
-                    <div className="flex items-center space-x-3 text-xs text-slate-500">
-                      <span className="font-bold">{post.category}</span>
-                      <span>•</span>
-                      <span>{post.date}</span>
-                      <span>•</span>
-                      <span>{post.readTime}</span>
-                    </div>
+               <div key={post.id} className="bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-zinc-800 flex justify-between items-center hover:shadow-md transition">
+                  <div className="flex items-center gap-4">
+                     <img src={post.image} alt="" className="w-16 h-16 rounded-lg object-cover bg-slate-100"/>
+                     <div>
+                        <h3 className="font-bold text-lg">{post.title}</h3>
+                        <div className="flex gap-2 text-sm text-slate-500 mt-1">
+                            <span className="bg-slate-100 dark:bg-zinc-800 px-2 rounded text-xs uppercase font-bold tracking-wider py-0.5">{post.category}</span>
+                            <span>• {post.date}</span>
+                        </div>
+                     </div>
                   </div>
-                </div>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => handleEdit(post)}
-                    className="p-3 bg-black dark:bg-white text-white dark:text-black rounded-lg hover:scale-110 transition-all duration-300"
-                  >
-                    <Edit2 size={18} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(post.id)}
-                    className="p-3 bg-red-500 text-white rounded-lg hover:scale-110 transition-all duration-300"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </div>
-              </div>
+                  <div className="flex gap-2">
+                     <button onClick={() => handleEdit(post)} className="p-2 hover:bg-slate-100 rounded-full text-blue-600"><Edit2 size={20}/></button>
+                     <button onClick={() => handleDelete(post.id)} className="p-2 hover:bg-red-50 rounded-full text-red-500"><Trash2 size={20}/></button>
+                  </div>
+               </div>
             ))}
+            {posts.length === 0 && (
+                <div className="text-center py-20 text-slate-400">Chưa có bài viết nào. Hãy bấm "New Post" để tạo!</div>
+            )}
           </div>
         )}
       </div>
@@ -444,4 +305,3 @@ const AdminDashboard: React.FC = () => {
 };
 
 export default AdminDashboard;
-
