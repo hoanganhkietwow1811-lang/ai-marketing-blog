@@ -38,7 +38,7 @@ const Login: React.FC = () => {
 
       // 1. Gọi API đăng nhập (CỔNG 4000)
 
-      const res = await fetch('http://localhost:4000/api/login', {
+      const res = await fetch('https://ai-marketing-blog.onrender.com/api/login', {
 
         method: 'POST',
 

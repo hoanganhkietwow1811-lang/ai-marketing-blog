@@ -15,7 +15,7 @@ const Home: React.FC = () => {
     try {
       console.log("📡 Đang lấy dữ liệu...");
       const timestamp = new Date().getTime();
-      const response = await fetch(`http://localhost:4000/api/posts?t=${timestamp}`);
+      const response = await fetch(`https://ai-marketing-blog.onrender.com/api/posts?t=${timestamp}`);
       const data = await response.json();
       
       if (Array.isArray(data)) {

@@ -48,7 +48,7 @@ const PostDetail: React.FC = () => {
           
           // Gọi API (Dùng api/posts là đủ, hoặc tạo api get detail riêng)
           // Ở đây mình dùng cách đơn giản là lấy list rồi tìm, tối ưu hơn là gọi api/posts/:id
-          const response = await fetch('http://localhost:4000/api/posts'); 
+          const response = await fetch('https://ai-marketing-blog.onrender.com/api/posts'); 
           const data = await response.json();
           
           const foundPostDB = data.find((p: any) => p.id.toString() === dbId);

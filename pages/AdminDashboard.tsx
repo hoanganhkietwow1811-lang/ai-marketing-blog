@@ -28,7 +28,7 @@ const AdminDashboard: React.FC = () => {
   // --- 1. LẤY DANH SÁCH BÀI VIẾT ---
   const fetchPosts = async () => {
     try {
-      const response = await fetch('http://localhost:4000/api/posts');
+      const response = await fetch('https://ai-marketing-blog.onrender.com/api/posts');
       const data = await response.json();
       
       // Map dữ liệu từ Server về Frontend
@@ -67,7 +67,7 @@ const AdminDashboard: React.FC = () => {
     if (!brandInput.trim()) return alert("Vui lòng nhập tên thương hiệu!");
     setIsGenerating(true);
     try {
-      const res = await fetch('http://localhost:4000/api/generate-ai', {
+      const res = await fetch('https://ai-marketing-blog.onrender.com/api/generate-ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ brandName: brandInput })
@@ -130,8 +130,8 @@ const AdminDashboard: React.FC = () => {
       const isUpdate = !!editingId; 
       const method = isUpdate ? 'PUT' : 'POST';
       const url = isUpdate 
-        ? `http://localhost:4000/api/posts/${editingId}` // API Sửa
-        : 'http://localhost:4000/api/posts';             // API Tạo
+        ? `https://ai-marketing-blog.onrender.com/api/posts/${editingId}` // API Sửa
+        : 'https://ai-marketing-blog.onrender.com/api/posts';             // API Tạo
 
       const response = await fetch(url, {
         method: method,
@@ -162,7 +162,7 @@ const AdminDashboard: React.FC = () => {
   const handleDelete = async (postId: string) => {
     if (!confirm('Bạn có chắc muốn xóa bài này?')) return;
     try {
-      await fetch(`http://localhost:4000/api/posts/${postId}`, { method: 'DELETE' });
+      await fetch(`https://ai-marketing-blog.onrender.com/api/posts/${postId}`, { method: 'DELETE' });
       // Cập nhật giao diện ngay lập tức (xóa bài khỏi list hiện tại)
       setPosts(posts.filter(p => p.id !== postId));
     } catch (error) {
